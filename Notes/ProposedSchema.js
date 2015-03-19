@@ -1,10 +1,12 @@
 var resourceSchema = new Schema({
 
-	ResourceID: Number,	
-	UserID: String,
-	ResourceName: String,
-	MIMEType: String,
-	UploadDate: Date.now
-	ResourceURL: String,
+	resourceID: Number,	
+	userID: String,
+	resourceName: String,
+	mimeType: String,
+	fileSize: Number,
+	uploadDate: Date.now
+	lastViewed: Date
+	resourceURL: String,
 	filePath: String
 });
