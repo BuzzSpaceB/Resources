@@ -12,3 +12,6 @@
          
 --Title explains itself--
          http://blog.robertonodi.me/simple-image-upload-with-express/
+         
+--Example code for reference, but only for image uploads--
+         https://github.com/robert52/simple-upload
