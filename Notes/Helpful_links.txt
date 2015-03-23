@@ -1,0 +1,11 @@
+---Just some links to help us with the MongoDB part, hope it helps---
+
+
+--this just shows how to create a file and store it into MondoDB, using Node.js and gridFS--
+      http://blog.robertonodi.me/managing-files-with-node-js-and-mongodb-gridfs/
+
+--This just explains what gridFS is and why it's used---
+        http://docs.mongodb.org/manual/core/gridfs/
+
+--This handles the interaction between MongoDB and our Node.js stuff. Just get the driver for Node.js--
+          http://docs.mongodb.org/manual/applications/drivers/
