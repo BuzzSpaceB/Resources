@@ -1,0 +1,7 @@
+extends layout
+
+block content
+  h1= title
+  form#uploadForm(name="upload",method="post", enctype="multipart/form-data", action="/uploadResource")
+        input#resource(type="file", name="resource")
+        input#btnSubmit(type="submit" value="upload")
