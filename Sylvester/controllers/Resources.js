@@ -1,6 +1,6 @@
 
 var mongoose = require('mongoose');
-var Resources = require('../models/Resources');
+var ResourcesModel = require('../models/Resources');
 var fs = require("fs");
 
 
@@ -8,23 +8,64 @@ var Resource = {};
 
 Resource.uploadResource = function(file) {
 
-   
-		new Resources({userID: "buzz",
-				resourceName: file.name,
-				data: fs.readFileSync(file.path),
-				resourceDescription: "Buzz Resource",
-				mimeType: file.mimetype,
-				uploadDate: {type: Date, default: Date.now},
-				resourceURL: file.path}).save();
 
-		fs.unlinkSync(file.path);
+	ResourcesModel.collection.insert({userID: "buzz",
+		resourceName: file.name,
+		data: fs.readFileSync(file.path),
+		resourceDescription: "Buzz Resource",
+		plainText: file.originalname,
+		mimeType: file.mimetype,
+		uploadDate: {type: Date, default: Date.now},
+		resourceURL: file.path}, function(err, doc) {
+
+			if(err) console.log("Error inserting record");
+			else console.log("Record added");
+		});
+	
+	fs.unlinkSync(file.path);
+};
+
+var callback = function(err, re) {
+
+		if(err) return console.log("Error: finding..");
+		else {
+				console.log(re);
+		}
+	};
+
+Resource.findResources = function(file) {
+
+	ResourcesModel.find({
+		"plainText": file}, callback);
 
 };
 
+Resource.downloadResource = function(file) {
 
-Resource.removeResource = function() {
+	ResourcesModel.find({
+		plainText: file}, function(err, results) {
 
+		if(err) {
+
+			return console.log("Error searching...");
+		} else {
+
+			fs.writeFile("public/downloads/" + results[0].plainText, results[0].data, function(err) {
+
+				if(err) {
+
+					return console.log("Error");
+
+				} else {
+
+					console.log("Done downloading Resource");
+				}
+			});
+		}
+	});
+	
 };
+
 
 
 Resource.ResourceTypeContraintsManager = {};

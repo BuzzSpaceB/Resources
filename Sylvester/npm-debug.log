@@ -22,7 +22,7 @@
 11 error There is likely additional logging output above.
 12 error System Windows_NT 6.2.9200
 13 error command "C:\\Program Files (x86)\\nodejs\\\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "start"
-14 error cwd C:\Users\GASwipper Gcc\BuzzSpaceResources\BuzzResourceB
+14 error cwd C:\Users\GASwipper Gcc\Documents\BuzzResourcesBB\Sylvester
 15 error node -v v0.10.28
 16 error npm -v 1.4.9
 17 error code ELIFECYCLE

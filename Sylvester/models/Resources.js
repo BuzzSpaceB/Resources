@@ -1,10 +1,10 @@
-
 var mongoose = require('mongoose');
 
 var schema = new mongoose.Schema({
 	userID: String,
 	data: Buffer,
 	resourceName: String,
+	plainText: String,
 	resourceDescription: String,
 	mimeType: String,
 	uploadDate: {type: Date, default: Date.now},
