@@ -1,0 +1,15 @@
+var mongoose = require('mongoose');
+/**
+* Database schema use for resources constraints
+*/
+var schema = new mongoose.Schema({
+	mimeType: String,
+	maxSize: Number 
+});
+
+/**
+* Define the collection to be used
+*/
+schema.set('collection', 'Resources_Constraints');
+
+module.exports = mongoose.model('Resources_Constraints', schema);

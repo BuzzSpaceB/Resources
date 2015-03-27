@@ -67,7 +67,7 @@ router.use(multer(
     },
     onFileUploadComplete: function (file)
     {
-      console.log(file.fieldname + ' uploaded to  ' + file.path);
+      console.log(file.fieldname + ' uploaded to  ' + file);
       done=true;
     }
   }
@@ -78,7 +78,6 @@ router.post('/uploadResource', function(req, res, next) {
   if(done == true)
   {
 
-    console.log(req.files.resource);
     ResourceController.uploadResource(req.files.resource, req.body.description);
     res.location("./viewResources");
     res.redirect("./viewResources");
