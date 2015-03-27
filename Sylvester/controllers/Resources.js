@@ -1,56 +1,83 @@
-
 var mongoose = require('mongoose');
 var ResourcesModel = require('../models/Resources');
 var fs = require("fs");
+var ObjectId = require('mongodb').ObjectID;
+
+var MimeTypeDetector = {}; //MimeTypeDetector object
+var Resource = {}; //Resource object
+
+/**
+* MimeTypeDetector method for detecting mimeType of a resource
+*@param {Oject} file - an object with all the resoucers attributes. 
+*/
+MimeTypeDetector.detectMimeType = function(file) {
+
+	if(file.mimetype) {
+
+		return true;
+
+	} else {
+
+		return console.log("Error: Could not detect mimeType");
+	}
+}
+
+/**
+*Resource method for uploading resources in the mongo database
+*@param {Oject} file - an object with all the resoucers attributes. 
+*@param {String} disc - the description of the resource. 
+*/
+Resource.uploadResource = function(file, desc) {
 
 
-var Resource = {};
+	if(MimeTypeDetector.detectMimeType(file)) {
 
-Resource.uploadResource = function(file) {
+		ResourcesModel.collection.insert({
+			userID: "uxxxxxxxx",
+			resourceName: file.name,
+			data: fs.readFileSync(file.path),
+			resourceDescription: desc,
+			mimeType: file.mimetype,
+			uploadDate: new Date() }, function(err, doc) {
 
-
-	ResourcesModel.collection.insert({userID: "buzz",
-		resourceName: file.name,
-		data: fs.readFileSync(file.path),
-		resourceDescription: "Buzz Resource",
-		plainText: file.originalname,
-		mimeType: file.mimetype,
-		uploadDate: {type: Date, default: Date.now},
-		resourceURL: file.path}, function(err, doc) {
-
-			if(err) console.log("Error inserting record");
-			else console.log("Record added");
-		});
-	
-	fs.unlinkSync(file.path);
+				if(err) console.log("Error inserting record");
+				else console.log("Record added");
+			});
+		
+		fs.unlinkSync(file.path);
+	}
 };
 
-var callback = function(err, re) {
+/**
+*Resource method for removing resources in the mongo database. 
+*@param {String} r_id - the id of a resource to be removed.   
+*/
+Resource.removeResource = function(r_id) {
 
-		if(err) return console.log("Error: finding..");
+	ResourcesModel.find({"_id" :r_id}).remove(function(err, results) {
+
+		if(err) console.log("Error removing resource");
 		else {
-				console.log(re);
+			console.log("Resource removed");
 		}
-	};
-
-Resource.findResources = function(file) {
-
-	ResourcesModel.find({
-		"plainText": file}, callback);
-
+	});
 };
 
-Resource.downloadResource = function(file) {
+/**
+*Resource method for downloading reources in the mongo database (temp method, for testing).
+*@param {String} name - the name of the resource to be downloaded. 
+*/
+Resource.downloadResource = function(name) {
 
 	ResourcesModel.find({
-		plainText: file}, function(err, results) {
+		"resourceName": name}, function(err, results) {
 
 		if(err) {
 
 			return console.log("Error searching...");
 		} else {
 
-			fs.writeFile("public/downloads/" + results[0].plainText, results[0].data, function(err) {
+			fs.writeFile("public/downloads/" + results[0].resourceName, results[0].data, function(err) {
 
 				if(err) {
 
@@ -67,10 +94,15 @@ Resource.downloadResource = function(file) {
 };
 
 
+/**
+*ResourceTypeConstraintsManager object use to manage constraints of resources
+*/
+Resource.ResourceTypeConstraintsManager = {};
 
-Resource.ResourceTypeContraintsManager = {};
-
-Resource.ResourceTypeContraintsManager.addResourceType = function() {
+/**
+*ResourceTypeConstraintsManager method for adding a type to a resource
+*/
+Resource.ResourceTypeConstraintsManager.addResourceType = function() {
 
 }
 

@@ -1,15 +1,20 @@
-var mongoose = require('mongoose');
 
+var mongoose = require('mongoose');
+/**
+* Database schema use for resources
+*/
 var schema = new mongoose.Schema({
 	userID: String,
 	data: Buffer,
 	resourceName: String,
-	plainText: String,
 	resourceDescription: String,
 	mimeType: String,
-	uploadDate: {type: Date, default: Date.now},
-	resourceURL: String
+	uploadDate: Date
 });
 
-schema.set('collection', 'resources');
+/**
+* Define the collection to be used
+*/
+schema.set('collection', 'Resources');
+
 module.exports = mongoose.model('Resources', schema);

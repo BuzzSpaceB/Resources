@@ -7,7 +7,7 @@ var bodyParser = require('body-parser');
 
 var mongoose = require('mongoose');
 
-mongoose.connect('mongodb://localhost:27017/resourcesB', function(err) {
+mongoose.connect('mongodb://localhost:27017/buzzResources', function(err) {
     if(err) {
         console.log('connection error', err);
     } else {

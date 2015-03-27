@@ -1,9 +1,11 @@
 var express = require('express');
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.render('users', { title: 'Uploaded Resources' });
-});
 
+router.get('/viewResources', function(req, res, next) {
+
+  	ResourcesModel.find(function (err, items) {
+        res.json(items);
+    });
+});
 module.exports = router;
