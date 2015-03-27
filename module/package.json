@@ -1,0 +1,9 @@
+{
+  "name": "Resource",
+  "version": "0.0.0",
+  "dependencies": {
+    "mongodb": "*",
+	  "mongoose": "*",
+	  "multer": "*",
+  }
+}
