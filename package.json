@@ -1,5 +1,6 @@
 {
   "private": true,
+  "main": "index.js",
   "name": "Resources",
   "description": "Module for managing resources",
   "version": "0.0.1",
