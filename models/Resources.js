@@ -9,12 +9,9 @@ var schema = new mongoose.Schema({
 	resourceName: String,
 	resourceDescription: String,
 	mimeType: String,
-	uploadDate: Date
+	uploadDate: Date,
+	url: String
 });
 
-/**
-* Define the collection to be used
-*/
-schema.set('collection', 'Resources');
 
-module.exports = mongoose.model('Resources', schema);
+module.exports = mongoose.model('resources', schema);

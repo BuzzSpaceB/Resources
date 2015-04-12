@@ -1,49 +1,49 @@
 var mongoose = require('mongoose');
-var ResourcesModel = require('../models/Resources');
+var mimeTypeDetector = require('./mimeTypeDetector');
+var persistence = require('./persistence');
+var resourcesModel = require('../models/Resources');
+var resourcesConstraintsModel = require('../models/Resources_Constraints');
 var fs = require("fs");
 
-var MimeTypeDetector = {}; //MimeTypeDetector object
-var Resource = {}; //Resource object
-
-/**
-* MimeTypeDetector method for detecting mimeType of a resource
-*@param {Oject} file - an object with all the resoucers attributes. 
-*/
-MimeTypeDetector.detectMimeType = function(file) {
-
-	if(file.mimetype) {
-
-		return true;
-
-	} else {
-
-		return console.log("Error: Could not detect mimeType");
-	}
-}
 
 /**
 *Resource method for uploading resources in the mongo database
 *@param {Oject} file - an object with all the resoucers attributes. 
 *@param {String} disc - the description of the resource. 
 */
-Resource.uploadResource = function(file, desc) {
+module.exports.uploadResource = function(file, desc) {
 
+	if(mimeTypeDetector.detectMimeType(file)) {
 
-	if(MimeTypeDetector.detectMimeType(file)) {
+		persistence.retrieveResourceTypeConstraints(file.mimetype, function(err, constraints) {
 
-		ResourcesModel.collection.insert({
-			userID: "uxxxxxxxx",
-			resourceName: file.name,
-			data: fs.readFileSync(file.path),
-			resourceDescription: desc,
-			mimeType: file.mimetype,
-			uploadDate: new Date() }, function(err, doc) {
+			if(err) {
 
-				if(err) console.log("Error inserting record");
-				else console.log("Record added");
-			});
-		
-		fs.unlinkSync(file.path);
+			 	console.log("Error getting constraints");
+
+			} else {
+
+				var fSize = (file.size/ 1000); // bytes to KB;
+
+				if (constraints != null) {
+					if(fSize > constraints.maxSize) {
+
+						console.log("Error: reource type constraints not met..");
+
+					}else {
+
+						persistence.persistObject(file, desc);
+					}
+				} else {
+
+					console.log("WHAT ARE YOU DOING, HACKING THE SYSTEM?");
+				}
+			}
+
+			fs.unlinkSync(file.path);
+
+		});
+
 	}
 };
 
@@ -51,14 +51,11 @@ Resource.uploadResource = function(file, desc) {
 *Resource method for removing resources in the mongo database. 
 *@param {String} r_id - the id of a resource to be removed.   
 */
-Resource.removeResource = function(r_id) {
+module.exports.removeResource = function(r_id) {
 
-	ResourcesModel.find({"_id" :r_id}).remove(function(err, results) {
+	resourcesModel.find({"_id" :r_id}).remove(function(err, results) {
 
 		if(err) console.log("Error removing resource");
-		else {
-			console.log("Resource removed");
-		}
 	});
 };
 
@@ -66,9 +63,9 @@ Resource.removeResource = function(r_id) {
 *Resource method for downloading reources in the mongo database (temp method, for testing).
 *@param {String} name - the name of the resource to be downloaded. 
 */
-Resource.downloadResource = function(name) {
+module.exports.downloadResource = function(name) {
 
-	ResourcesModel.find({
+	resourcesModel.find({
 		"resourceName": name}, function(err, results) {
 
 		if(err) {
@@ -82,9 +79,6 @@ Resource.downloadResource = function(name) {
 
 					return console.log("Error");
 
-				} else {
-
-					console.log("Done downloading Resource");
 				}
 			});
 		}
@@ -94,15 +88,30 @@ Resource.downloadResource = function(name) {
 
 
 /**
-*ResourceTypeConstraintsManager object use to manage constraints of resources
-*/
-Resource.ResourceTypeConstraintsManager = {};
-
-/**
 *ResourceTypeConstraintsManager method for adding a type to a resource
 */
-Resource.ResourceTypeConstraintsManager.addResourceType = function() {
+module.exports.addResourceType = function(r_type, maxSize) {
 
-}
+	var entry = new resourcesConstraintsModel();
+	entry.resourceType = r_type;
+	entry.maximumSize = maxSize;
 
-module.exports = Resource;
+	entry.save(function(err) {
+
+		if (err) {
+
+			console.log("Error: " + err);
+		}
+	})
+		
+};
+
+module.exports.removeResourceType = function(r_type) {
+
+	resourcesConstraintsModel.find({"resourceType" :r_type}).remove(function(err, results) {
+
+		if(err) console.log("Error removing resource type");
+	});
+		
+};
+
