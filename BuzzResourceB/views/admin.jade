@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  h1= title
+  br
+  br
+  h3= "Add Resource Type"
+  form#uploadForm(name="upload",method="post", enctype="multipart/form-data", action="/addType")
+        input#resource(type="text", name="Type", placeholder="Type")
+        br
+        br
+        input#description(type="text", name="Size", placeholder="Max size")
+        br
+        br
+        input#btnSubmit(type="submit" value="Submit")
+  br
+  h3= "Remove Resource Type"
+  form#uploadForm(name="upload",method="post", enctype="multipart/form-data", action="/removeType")
+        input#resource(type="text", name="Type", placeholder="Type")
+        br
+        br
+        input#btnSubmit(type="submit" value="Submit")
