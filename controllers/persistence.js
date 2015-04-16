@@ -3,7 +3,7 @@ var ds = require('DatabaseStuff');
 var fs = require("fs");
 var deasync = require('deasync');
 
-var ResourcesModel = ds.models.resource,
+var ResourcesModel = ds.models.resources,
 	ResourcesConstraintsModel = ds.models.resourcesConstraints;
 	
 /**
