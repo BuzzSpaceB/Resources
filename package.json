@@ -21,6 +21,9 @@
       "morgan": "~1.5.1",
       "node-aop": "^0.1.0",
       "node-cache": "^1.1.0",
-      "DatabaseStuff": "git://github.com/BuzzSpaceB/DatabaseStuff#master"
+      "DatabaseStuff": "git://github.com/BuzzSpaceB/DatabaseStuff#master",
+      "mocha": "*",
+      "should": ">=0.0.1",
+      "deasync": "*"
     }
 }
