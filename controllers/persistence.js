@@ -1,11 +1,9 @@
 var mongoose = require('mongoose');
-var ds = require('DatabaseStuff');
+var ResourcesModel = require('../models/Resources');
+var ResourcesConstraintsModel = require('../models/Resources_Constraints');
 var fs = require("fs");
 var deasync = require('deasync');
 
-var ResourcesModel = ds.models.resources,
-	ResourcesConstraintsModel = ds.models.resourcesConstraints;
-	
 /**
 * Persistence method for retrieving constraints of a resource type.
 *@param {String} type - the mimetype of the constraints to be retrieved.
@@ -26,10 +24,10 @@ module.exports.retrieveResourceTypeConstraints = function(type) {
 	    done  = true;
 	 });
 
-	while(!done) {
-
-  		deasync.runLoopOnce();
-	}
+//	while(!done) {
+//
+//  		deasync.runLoopOnce();
+//	}
 
 	return data;
 };
@@ -64,10 +62,10 @@ module.exports.persistObject = function (file, desc) {
 	});
 
 
-	while(!done) {
-
-  		deasync.runLoopOnce();
-	}
+//	while(!done) {
+//
+//  		deasync.runLoopOnce();
+//	}
 					
 	return data;
 };
