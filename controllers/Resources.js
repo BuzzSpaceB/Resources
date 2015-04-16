@@ -1,10 +1,11 @@
-var mongoose = require('mongoose');
 var mimeTypeDetector = require('./mimeTypeDetector');
 var persistence = require('./persistence');
-var resourcesModel = require('../models/Resources');
-var resourcesConstraintsModel = require('../models/Resources_Constraints');
+var mongoose = require('mongoose');
+var ds = require('DatabaseStuff');
 var fs = require("fs");
 
+var resourcesModel = ds.models.resourcesConstraints.resource,
+	resourcesConstraintsModel = ds.models.resourcesConstraints;
 
 /**
 *Resource method for uploading resources in the mongo database
@@ -39,8 +40,6 @@ module.exports.uploadResource = function(file, desc) {
 					console.log("WHAT ARE YOU DOING, HACKING THE SYSTEM?");
 				}
 			}
-
-			fs.unlinkSync(file.path);
 
 		});
 

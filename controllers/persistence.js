@@ -1,8 +1,9 @@
 var mongoose = require('mongoose');
-var ResourcesModel = require('../models/Resources');
-var ResourcesConstraintsModel = require('../models/Resources_Constraints');
+var ds = require('DatabaseStuff');
 var fs = require("fs");
 
+var ResourcesModel = ds.models.resourcesConstraints.resource,
+	ResourcesConstraintsModel = ds.models.resourcesConstraints;
 /**
 * Persistence method for retrieving constraints of a resource type.
 *@param {String} type - the mimetype of the constraints to be retrieved.
