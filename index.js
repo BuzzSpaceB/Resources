@@ -7,4 +7,4 @@ var mongoose = require('mongoose')
  * Export controllers/Resources
  */
 
-module.exports = require('./controllers/resources');
+module.exports = require('./controllers/Resources');
