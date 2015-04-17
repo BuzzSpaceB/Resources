@@ -5,7 +5,7 @@ var ds = require('DatabaseStuff');
 var fs = require("fs");
 var deasync = require('deasync');
 
-var resourcesModel = ds.models.resource,
+var resourcesModel = ds.models.resources,
 	resourcesConstraintsModel = ds.models.resourcesConstraints;
 
 
@@ -13,6 +13,7 @@ var resourcesModel = ds.models.resource,
 *Resource method for uploading resources in the mongo database
 *@param {Oject} file - an object with all the resoucers attributes. 
 *@param {String} desc - the description of the resource. 
+*@return json object of uploaded resource if resource is added else false
 */
 module.exports.uploadResource = function(file, desc) {
 
@@ -49,7 +50,8 @@ module.exports.uploadResource = function(file, desc) {
 
 /**
 *Resource method for removing resources in the mongo database. 
-*@param {String} r_id - the id of a resource to be removed.   
+*@param {String} r_id - the id of a resource to be removed. 
+*@return true is resource is removed else false.  
 */
 module.exports.removeResource = function(r_id) {
 
@@ -95,36 +97,11 @@ module.exports.removeResource = function(r_id) {
 	return status;
 };
 
-/**
-*Resource method for downloading reources in the mongo database (temp method, for testing).
-*@param {String} name - the name of the resource to be downloaded. 
-*/
-module.exports.downloadResource = function(name) {
-
-	resourcesModel.find({
-		"resourceName": name}, function(err, results) {
-
-		if(err) {
-
-			return console.log("Error searching...");
-		} else {
-
-			fs.writeFile("public/downloads/" + results[0].resourceName, results[0].data, function(err) {
-
-				if(err) {
-
-					return console.log("Error");
-
-				}
-			});
-		}
-	});
-	
-};
-
 
 /**
-*ResourceTypeConstraintsManager method for adding a type to a resource
+*ResourceTypeConstraintsManager method for adding a resource constraint type
+*param {String} r_type - the mimetype (e.g text/plain) of a resource to be added. 
+*param {String} maxSize - max size that can be uploaded for the resource. 
 */
 module.exports.addResourceType = function(r_type, maxSize) {
 
@@ -145,17 +122,16 @@ module.exports.addResourceType = function(r_type, maxSize) {
 
 		done = true;
 	});
-
-
-	/*while(!done) {
-
-  		deasync.runLoopOnce();
-	}
-					
-	return status;*/
 		
 };
 
+
+
+/**
+*ResourceTypeConstraintsManager method for removing a resource constraint type
+*param {String} r_type - the mimetype (e.g text/plain) of a resource to be removed. 
+*@return true if resource type is removed else false.
+*/
 module.exports.removeResourceType = function(r_type) {
 
 	var status = false,
@@ -180,6 +156,12 @@ module.exports.removeResourceType = function(r_type) {
 };
 
 
+/**
+*ResourceTypeConstraintsManager method for modifying a resource constraint type
+*param {String} r_type - the mimetype (e.g text/plain) of a resource to be modified. 
+*param {Number} newSizeLimit - the new max size that can be uploaded for the resource. 
+*@return true if the resource constraint type was modified else false.
+*/
 module.exports.modifyResourceType = function(type, newSizeLimit) {
 
 	var status = false,
