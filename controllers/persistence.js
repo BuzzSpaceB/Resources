@@ -1,28 +1,37 @@
 var mongoose = require('mongoose');
 var ds = require('DatabaseStuff');
 var fs = require("fs");
+var deasync = require('deasync');
 
 var ResourcesModel = ds.models.resourcesConstraints.resource,
 	ResourcesConstraintsModel = ds.models.resourcesConstraints;
+	
 /**
 * Persistence method for retrieving constraints of a resource type.
 *@param {String} type - the mimetype of the constraints to be retrieved.
 *@param {Function} callback - a call back function use to handle retreived constraints.  
 */
-module.exports.retrieveResourceTypeConstraints = function(type, callback) {
+module.exports.retrieveResourceTypeConstraints = function(type) {
+
+	var done = false,
+	 data = false;
 
 	ResourcesConstraintsModel.find({"resourceType": type}, function(err, _constraints) {
 	
-		if (err) {
+		if (!err) {
 
-	    	callback(err, null);
-
-	    } else {
-
-	      callback(null, _constraints[0]);
+	    	data = _constraints[0];
 	    }
+
+	    done  = true;
 	 });
 
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return data;
 };
 
 /**
@@ -34,7 +43,6 @@ module.exports.persistObject = function (file, desc) {
 
 	var entry = new ResourcesModel();
 
-	entry.userID = "uxxxxxxxx";
 	entry.resourceName = file.name;
 	entry.data = fs.readFileSync(file.path);
 	entry.resourceDescription = desc;
@@ -42,13 +50,25 @@ module.exports.persistObject = function (file, desc) {
 	entry.uploadDate = new Date();
 	entry.url = file.path;
 
-	entry.save(function(err) {
+	var done = false,
+	data = false;
 
-		if (err) {
+	entry.save(function(err, results) {
 
-			console.log("Err: " + err);
+		if (!err) {
+
+			data = results;
 		}
+
+		done = true;
 	});
+
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
 					
+	return data;
 };
 

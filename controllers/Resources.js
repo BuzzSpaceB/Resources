@@ -3,47 +3,48 @@ var persistence = require('./persistence');
 var mongoose = require('mongoose');
 var ds = require('DatabaseStuff');
 var fs = require("fs");
+var deasync = require('deasync');
 
 var resourcesModel = ds.models.resourcesConstraints.resource,
 	resourcesConstraintsModel = ds.models.resourcesConstraints;
 
+
 /**
 *Resource method for uploading resources in the mongo database
 *@param {Oject} file - an object with all the resoucers attributes. 
-*@param {String} disc - the description of the resource. 
+*@param {String} desc - the description of the resource. 
 */
 module.exports.uploadResource = function(file, desc) {
 
+	var request_results = false;
+
 	if(mimeTypeDetector.detectMimeType(file)) {
 
-		persistence.retrieveResourceTypeConstraints(file.mimetype, function(err, constraints) {
+		var constraints = persistence.retrieveResourceTypeConstraints(file.mimetype);
 
-			if(err) {
+		if(constraints) {
 
-			 	console.log("Error getting constraints");
+			if(file.size <= (constraints.maximumSize * 1000)) {
+
+				request_results =  persistence.persistObject(file, desc);
 
 			} else {
 
-				var fSize = (file.size/ 1000); // bytes to KB;
-
-				if (constraints != null) {
-					if(fSize > constraints.maxSize) {
-
-						console.log("Error: reource type constraints not met..");
-
-					}else {
-
-						persistence.persistObject(file, desc);
-					}
-				} else {
-
-					console.log("WHAT ARE YOU DOING, HACKING THE SYSTEM?");
-				}
+				fs.unlink(file.path);
+				throw("File size constraints not met");
 			}
+		} else {
 
-		});
+			fs.unlink(file.path);
+			throw("Resource type not supported");
+		}
+	} else {
 
+		fs.unlink(file.path);
+		throw("Could not detect mimetype");
 	}
+
+	return request_results;
 };
 
 /**
@@ -52,10 +53,46 @@ module.exports.uploadResource = function(file, desc) {
 */
 module.exports.removeResource = function(r_id) {
 
-	resourcesModel.find({"_id" :r_id}).remove(function(err, results) {
+	var status = false,
+		done = false,
+		before = false,
+		data = null;
 
-		if(err) console.log("Error removing resource");
+	var query = resourcesModel.find({"_id" :r_id}, function(err, results) {
+
+		if(!err) {
+
+			data = results[0];
+
+		}
+
+		before = true;
+
 	});
+
+	while(!before) {
+
+  		deasync.runLoopOnce();
+	}
+
+	query.remove(function(err, results) {
+
+		if(!err) {
+
+			status = true;
+			fs.unlink(data.url);
+		}
+
+		done = true;
+
+	});
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return status;
 };
 
 /**
@@ -91,26 +128,243 @@ module.exports.downloadResource = function(name) {
 */
 module.exports.addResourceType = function(r_type, maxSize) {
 
+
+	var status = false,
+		done = false;
+
 	var entry = new resourcesConstraintsModel();
 	entry.resourceType = r_type;
 	entry.maximumSize = maxSize;
 
-	entry.save(function(err) {
+	entry.save(function(err, results) {
 
-		if (err) {
+		if (!err) {
 
-			console.log("Error: " + err);
+			status = true;
 		}
-	})
+
+		done = true;
+	});
+
+
+	/*while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+					
+	return status;*/
 		
 };
 
 module.exports.removeResourceType = function(r_type) {
 
+	var status = false,
+		done = false;
+
 	resourcesConstraintsModel.find({"resourceType" :r_type}).remove(function(err, results) {
 
-		if(err) console.log("Error removing resource type");
+		if(!err) {
+
+			status = true;
+		}
+
+		done = true;
 	});
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return status;
+};
+
+
+module.exports.modifyResourceType = function(type, newSizeLimit) {
+
+	var status = false,
+		done = false;
+
+	resourcesConstraintsModel.update({"resourceType" : type}, {$set: {maximumSize: newSizeLimit}}, function(err, results) {
+
+		if(!err) {
+
+			status = true;
+		}
+
+		done = true;
+	});
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return status;
+};
+/**
+*Resource method for uploading resources in the mongo database
+*@param {Oject} file - an object with all the resoucers attributes. 
+*@param {String} desc - the description of the resource. 
+*/
+module.exports.uploadResource = function(file, desc) {
+
+	var request_results = false;
+
+	if(mimeTypeDetector.detectMimeType(file)) {
+
+		var constraints = persistence.retrieveResourceTypeConstraints(file.mimetype);
+
+		if(constraints) {
+
+			if(file.size <= (constraints.maximumSize * 1000)) {
+
+				request_results =  persistence.persistObject(file, desc);
+
+			} else {
+
+				fs.unlink(file.path);
+				throw("File size constraints not met");
+			}
+		} else {
+
+			fs.unlink(file.path);
+			throw("Resource type not supported");
+		}
+	} else {
+
+		fs.unlink(file.path);
+		throw("Could not detect mimetype");
+	}
+
+	return request_results;
+};
+
+/**
+*Resource method for removing resources in the mongo database. 
+*@param {String} r_id - the id of a resource to be removed.   
+*/
+module.exports.removeResource = function(r_id) {
+
+	var status = false,
+		done = false,
+		before = false,
+		data = null;
+
+	var query = resourcesModel.find({"_id" :r_id}, function(err, results) {
+
+		if(!err) {
+
+			data = results[0];
+
+		}
+
+		before = true;
+
+	});
+
+	while(!before) {
+
+  		deasync.runLoopOnce();
+	}
+
+	query.remove(function(err, results) {
+
+		if(!err) {
+
+			status = true;
+			fs.unlink(data.url);
+		}
+
+		done = true;
+
+	});
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return status;
+};
+
+
+/**
+*ResourceTypeConstraintsManager method for adding a type to a resource
+*/
+module.exports.addResourceType = function(r_type, maxSize) {
+
+
+	var status = false,
+		done = false;
+
+	var entry = new resourcesConstraintsModel();
+	entry.resourceType = r_type;
+	entry.maximumSize = maxSize;
+
+	entry.save(function(err, results) {
+
+		if (!err) {
+
+			status = true;
+		}
+
+		done = true;
+	});
+
+
+	/*while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+					
+	return status;*/
 		
 };
 
+module.exports.removeResourceType = function(r_type) {
+
+	var status = false,
+		done = false;
+
+	resourcesConstraintsModel.find({"resourceType" :r_type}).remove(function(err, results) {
+
+		if(!err) {
+
+			status = true;
+		}
+
+		done = true;
+	});
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return status;
+};
+
+
+module.exports.modifyResourceType = function(type, newSizeLimit) {
+
+	var status = false,
+		done = false;
+
+	resourcesConstraintsModel.update({"resourceType" : type}, {$set: {maximumSize: newSizeLimit}}, function(err, results) {
+
+		if(!err) {
+
+			status = true;
+		}
+
+		done = true;
+	});
+
+	while(!done) {
+
+  		deasync.runLoopOnce();
+	}
+
+	return status;
+};

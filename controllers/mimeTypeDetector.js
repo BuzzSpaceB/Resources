@@ -10,6 +10,6 @@ module.exports.detectMimeType = function(file) {
 
 	} else {
 
-		return console.log("Error: Could not detect mimeType");
+		return false;
 	}
 }
