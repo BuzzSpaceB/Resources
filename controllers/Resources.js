@@ -31,17 +31,17 @@ module.exports.uploadResource = function(file, desc) {
 
 			} else {
 
-				fs.unlink(file.path);
+				fs.unlinkSync(file.path);
 				throw("File size constraints not met");
 			}
 		} else {
 
-			fs.unlink(file.path);
+			fs.unlinkSync(file.path);
 			throw("Resource type not supported");
 		}
 	} else {
 
-		fs.unlink(file.path);
+		fs.unlinkSync(file.path);
 		throw("Could not detect mimetype");
 	}
 
